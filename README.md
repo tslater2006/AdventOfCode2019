@@ -1,4 +1,4 @@
-# AdventOfCodeBase
+# Advent of Code 2019
 A basic C# program for Advent of Code, retrieving puzzle inputs on the go and creating instances of solutions as they are created. It runs on .NET Core 3.0 and can be built easily in Visual Studio Code or Visual Studio. 
 
 #### Build & Run
@@ -22,3 +22,8 @@ Program.cs assumes that the root folder contains a config.json file and passes t
 }
 ```
 If no config.json exists, one is created automatically with an empty string as the cookie value. 
+
+# Solution Write-ups
+Below you will find links to each of my daily write-ups.
+
+[Day 1](./Solutions/Year2019/Day01/writeup.md)
