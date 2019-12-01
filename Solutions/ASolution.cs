@@ -8,7 +8,8 @@ namespace AdventOfCode.Solutions {
 
         Lazy<string> _part1, _part2;
         Lazy<string[]> _input;
-        
+        DateTime start, stop;
+
         public int Day { get; }
         public int Year { get; }
         public string Title { get; }
@@ -26,6 +27,7 @@ namespace AdventOfCode.Solutions {
         }
 
         public void Solve(int part = 0) {
+            start = DateTime.Now;
             if(Input == null) return; 
 
             bool doOutput = false; 
@@ -42,15 +44,20 @@ namespace AdventOfCode.Solutions {
             }
             if(part != 1) {
                 if(Part2 != "") {
-                    output += $"Part 2: {Part2}\n";
+                    output += $"Part 2: {Part2}";
                     doOutput= true; 
                 } else {
-                    output += "Part 2: Unsolved\n";
+                    output += "Part 2: Unsolved";
                     if(part == 2) doOutput= true; 
                 }
             }
-
-            if(doOutput) Console.WriteLine(output); 
+            stop = DateTime.Now;
+            if (doOutput)
+            {
+                Console.WriteLine(output);
+                Console.WriteLine("Solved in: " + (stop - start).TotalMilliseconds + "ms" + Environment.NewLine);
+            }
+            
         }
 
         string[] LoadInput() {
