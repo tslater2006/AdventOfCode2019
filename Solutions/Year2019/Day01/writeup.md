@@ -25,7 +25,8 @@ Next we can make a method that takes in a mass and returns the fuel requirement:
 ```c#
         private int GetFuelForMass(int m)
         {
-            return (int)(Math.Floor(m / 3.0) - 2);
+            /* Integer division already rounds down for us */
+            return m / 3 - 2;
         }
 ```
 

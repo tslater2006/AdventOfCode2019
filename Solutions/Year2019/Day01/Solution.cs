@@ -1,16 +1,18 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace AdventOfCode.Solutions.Year2019 {
 
     class Day01 : ASolution {
         int[] masses = null;
-        public Day01() : base(1, 2019, "") {
+        public Day01() : base(1, 2019, "The Tyranny of the Rocket Equation") {
             masses = Input.Select(s => int.Parse(s)).ToArray();
         }
 
         protected override string SolvePartOne() {
-            return masses.Select(m => GetFuelForMass(m)).Sum().ToString();
+            var answ = masses.Select(m => GetFuelForMass(m)).Sum().ToString();
+            return answ;
         }
 
         protected override string SolvePartTwo() {
@@ -19,7 +21,7 @@ namespace AdventOfCode.Solutions.Year2019 {
 
         private int GetFuelForMass(int m)
         {
-            return (int)(Math.Floor(m / 3.0) - 2);
+            return m / 3 - 2;
         }
 
         private int GetRecursiveFuelForMass(int m)
