@@ -7,14 +7,21 @@ namespace AdventOfCode.Utilities
 {
     class IntCodeVM
     {
+        int[] program;
         int[] memory;
         int IP;
         public IntCodeVM (string prog)
         {
-            memory = prog.Split(',').Select(s => int.Parse(s)).ToArray();
+            program = prog.Split(',').Select(s => int.Parse(s)).ToArray();
+            memory = new int[program.Length];
+            program.CopyTo(memory, 0);
             IP = 0;
         }
-
+        public void Reset()
+        {
+            program.CopyTo(memory, 0);
+            IP = 0;
+        }
         public void RunProgram()
         {
             while (memory[IP] != 99)

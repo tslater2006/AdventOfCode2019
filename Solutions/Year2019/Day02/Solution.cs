@@ -24,7 +24,38 @@ namespace AdventOfCode.Solutions.Year2019 {
         }
 
         protected override string SolvePartTwo() {
-            return null; 
+
+            bool answerFound = false;
+            int noun = 0;
+            int verb = 0;
+
+            for (var x = 0; x <= 99; x++)
+            {
+                for (var y = 0; y <= 99; y++)
+                {
+                    vm.Reset();
+                    vm.SetMemory(1, x);
+                    vm.SetMemory(2, y);
+
+                    vm.RunProgram();
+
+                    if (vm.ReadMemory(0) == 19690720)
+                    {
+                        answerFound = true;
+                    }
+                    if (answerFound)
+                    {
+                        verb = y;
+                        break;
+                    }
+                }
+                if (answerFound) {
+                    noun = x;
+                    break;
+                }
+            }
+
+            return (100 * noun + verb).ToString(); 
         }
     }
 }
