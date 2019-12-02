@@ -1,4 +1,4 @@
-﻿# Day 2 - 
+﻿# Day 2 - 1202 Program Alarm 
 
 In this problem we get introduced to what I'm sure will be a reoccuring item in the coming days, the Intcode computer. 
 

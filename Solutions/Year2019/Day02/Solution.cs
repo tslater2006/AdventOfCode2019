@@ -4,7 +4,7 @@ namespace AdventOfCode.Solutions.Year2019 {
 
     class Day02 : ASolution {
         IntCodeVM vm = null;
-        public Day02() : base(2, 2019, "") {
+        public Day02() : base(2, 2019, "1202 Program Alarm") {
             vm = new IntCodeVM(Input[0]);
         }
 
