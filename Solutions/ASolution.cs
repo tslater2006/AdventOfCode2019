@@ -62,12 +62,14 @@ namespace AdventOfCode.Solutions {
 
         string[] LoadInput() {
             string INPUT_FILEPATH = $"./Solutions/Year{Year}/Day{Day.ToString("D2")}/input";
+            string DAY_FOLDER = $"./Solutions/Year{Year}/Day{Day.ToString("D2")}";
             string INPUT_URL = $"https://adventofcode.com/{Year}/day/{Day}/input";
             string[] input = null; 
 
             if(File.Exists(INPUT_FILEPATH)) {
                 input = File.ReadAllLines(INPUT_FILEPATH);
             } else {
+                Directory.CreateDirectory(DAY_FOLDER);
                 try {
                     using(var client = new WebClient()) {
                         client.Headers.Add(HttpRequestHeader.Cookie, Program.Config.Cookie);

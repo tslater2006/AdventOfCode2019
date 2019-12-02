@@ -26,4 +26,5 @@ If no config.json exists, one is created automatically with an empty string as t
 # Solution Write-ups
 Below you will find links to each of my daily write-ups.
 
-[Day 1](./Solutions/Year2019/Day01/writeup.md)
+- [Day 1](./Solutions/Year2019/Day01/writeup.md)
+- [Day 2](./Solutions/Year2019/Day02/writeup.md)
