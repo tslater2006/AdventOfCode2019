@@ -183,5 +183,93 @@ protected override string SolvePartOne() {
 
 ## Part 2
 
+The second part of the challenge is much like the first half, just the question is inverted. 
+
+For Part 1 it was "given this input, 1202, what is the output" and now we have the question of "what input gives you the output `19690720`"
+
+Recall that we set an input value by writing to memory address 1 and 2, the problem goes on to explain that the value you write to memory address 1 is the "noun" and memory address 2 is the "verb", and it also assures us that the values can be between 0 and 99 (inclusive)
+
+The easiest way to solve this problem is just to run the VM with the different combinations until one of them yields us the correct final answer, at that point we know the noun and verb values, and the answer is `100 * noun + verb`
+
+First things first, we need to correct some things in our VM, and add a way to reset the machine state. The [current state of the VM](https://github.com/tslater2006/AdventOfCode2019/blob/19840a9c7ff81999f9795d3264bd0005e68a0f00/Utilities/IntCodeVM.cs) conflates 2 things, the program that is running, and the memory. 
+
+Because the programs can modify the memory, resetting isn't as simple as just setting the Instruction Pointer back to 0, some spots in the program that got written to are now different.
+
+To solve this we will separate out the program (opcodes) and the memory (used during the running of the VM)
+
+We need to:
+
+- Store the program in a separate array
+- Adjust constructor to parse the program into this new array
+- Make the memory array the same size as the program
+- Copy the new arrays values into "memory"
+
+```c#
+class IntCodeVM
+{
+    int[] program;
+    int[] memory;
+    int IP;
+    public IntCodeVM (string prog)
+    {
+        program = prog.Split(',').Select(s => int.Parse(s)).ToArray();
+        memory = new int[program.Length];
+        program.CopyTo(memory, 0);
+        IP = 0;
+    }
+```
+
+At this point the VM will run exactly as before, but also retain a copy of the original program, this allows us to create a "Reset" method. All this reset method needs to do is re-copy the program into memory and reset the Instruction Pointer
+
+```c#
+public void Reset()
+{
+    program.CopyTo(memory, 0);
+    IP = 0;
+}
+```
+
+We now have everyting we need implemented to solve Part 2. 
+
+The easiest way to solve this is to just go through all of the combinations via nested for loops, we try each Noun-Verb combination until we find the correct output, at that point we break out of the loops and return the result:
+```c#
+protected override string SolvePartTwo() {
+
+    bool answerFound = false;
+    int noun = 0;
+    int verb = 0;
+
+    for (var x = 0; x <= 99; x++)
+    {
+        for (var y = 0; y <= 99; y++)
+        {
+            vm.Reset();
+            vm.SetMemory(1, x);
+            vm.SetMemory(2, y);
+
+            vm.RunProgram();
+
+            if (vm.ReadMemory(0) == 19690720)
+            {
+                answerFound = true;
+            }
+            if (answerFound)
+            {
+                verb = y;
+                break;
+            }
+        }
+        if (answerFound) {
+            noun = x;
+            break;
+        }
+    }
+
+    return (100 * noun + verb).ToString(); 
+}
+```
+
+Here is the final [Intcode VM For Day 2](https://github.com/tslater2006/AdventOfCode2019/blob/d1f6a37b391c9b970f70856d6a396e515046c8b3/Utilities/IntCodeVM.cs).
+
 ------
 [Write-up Table of Contents](../../../README.md)
