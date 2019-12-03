@@ -28,3 +28,4 @@ Below you will find links to each of my daily write-ups.
 
 - [Day 1](./Solutions/Year2019/Day01/writeup.md)
 - [Day 2](./Solutions/Year2019/Day02/writeup.md)
+- [Day 3](./Solutions/Year2019/Day03/writeup.md)
