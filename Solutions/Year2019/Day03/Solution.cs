@@ -55,7 +55,7 @@ namespace AdventOfCode.Solutions.Year2019 {
 
         protected override string SolvePartOne() {
 
-            var intersects = Wire1.Intersect(Wire2).Where(p => p.X != 0 && p.Y != 0);
+            var intersects = Wire1.Skip(1).Intersect(Wire2.Skip(1));
             
             var closest = intersects.OrderBy(p => Math.Abs(p.X) + Math.Abs(p.Y)).First();
             
@@ -66,7 +66,7 @@ namespace AdventOfCode.Solutions.Year2019 {
 
         protected override string SolvePartTwo() {
 
-            var intersects = Wire1.Intersect(Wire2).Where(p => p.X != 0 && p.Y != 0);
+            var intersects = Wire1.Skip(1).Intersect(Wire2.Skip(1));
 
             var closestWalk = intersects.Select(p => Wire1.IndexOf(p) + Wire2.IndexOf(p)).OrderBy(i => i).First();
 
