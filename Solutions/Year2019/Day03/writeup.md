@@ -10,7 +10,7 @@ Both wires begin at the same origin, wire self-intersections are not considered 
 
 For this part, we want to know which intersection is closest to the origin point, calculated by the [Manhattan Distance](https://en.wikipedia.org/wiki/Taxicab_geometry) from the intersection point to the origin.
 
-First up we need to parse the input, the input is given to us as 2 lines (each line is a wire) and the line consists of directions like `R10,U40,L2,D4` where U/D/L/R stand for Up/Down/Left/Right respectively, and the number is the units to move in the specified direction.
+First up we need to parse the input, the input is given to us as 2 lines (each line is a wire) and the line consists of directions like `R10,U40,L2,D4` where U/D/L/R indicate the direction of movement, and the number is the units to move in the specified direction.
 
 There are a variety of ways you can model this information in order to solve the problem. For this solution we are going to build out a list of every coordinate the wire passes through. So assuming that the origin is `(0,0)` and the first instruction is R4, we will add to our list of points:
 
