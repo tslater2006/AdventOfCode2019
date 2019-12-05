@@ -1,4 +1,4 @@
-﻿# Day 3 - 
+﻿# Day 3 - Crossed Wires
 
 Today's problem is the first 2D graph problem of the year. The premise of the problem is that we have 2 wires in our ship that are intersecting. We don't know the exact locations of the wires but we have a list of the directions the wires take. Both parts deal with specific intersections between the 2 wires.
 
