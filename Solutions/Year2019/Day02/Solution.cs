@@ -11,8 +11,8 @@ namespace AdventOfCode.Solutions.Year2019 {
         protected override string SolvePartOne() {
 
             /* set the IntCode computer to error state 1202 */
-            vm.SetMemory(1, 12);
-            vm.SetMemory(2, 02);
+            vm.WriteMemory(1, 12);
+            vm.WriteMemory(2, 02);
 
             /* run the program */
             vm.RunProgram();
@@ -34,8 +34,8 @@ namespace AdventOfCode.Solutions.Year2019 {
                 for (var y = 0; y <= 99; y++)
                 {
                     vm.Reset();
-                    vm.SetMemory(1, x);
-                    vm.SetMemory(2, y);
+                    vm.WriteMemory(1, x);
+                    vm.WriteMemory(2, y);
 
                     vm.RunProgram();
 

@@ -1,16 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace AdventOfCode.Utilities
 {
     class IntCodeInstruction
     {
+        private IntCodeVM VM;
         public IntCodeOp OpCode;
         public int[] Parameters;
-        public IntCodeMode[] ParameterModes;
+        public IntCodeMode[] Modes;
         public int Length;
+
+        public IntCodeInstruction(IntCodeVM vmInst)
+        {
+            VM = vmInst;
+        }
+
+        public int GetParam(int paramNum)
+        {
+            if (Modes[paramNum - 1] == IntCodeMode.POSITION)
+            {
+                return VM.memory[Parameters[paramNum - 1]];
+            } else if (Modes[paramNum - 1] == IntCodeMode.IMMEDIATE)
+            {
+                return Parameters[paramNum - 1];
+            }
+
+            throw new FormatException();
+        }
+
     }
 
     enum IntCodeOp : int
@@ -27,7 +48,7 @@ namespace AdventOfCode.Utilities
     class IntCodeVM
     {
         int[] program;
-        int[] memory;
+        public int[] memory;
         Queue<int> Inputs = new Queue<int>();
         List<int> Outputs = new List<int>();
 
@@ -43,6 +64,8 @@ namespace AdventOfCode.Utilities
         {
             program.CopyTo(memory, 0);
             IP = 0;
+            Inputs.Clear();
+            Outputs.Clear();
         }
         public void WriteInput(int input)
         {
@@ -56,7 +79,7 @@ namespace AdventOfCode.Utilities
 
         private IntCodeInstruction ParseOpCode()
         {
-            IntCodeInstruction instr = new IntCodeInstruction();
+            IntCodeInstruction instr = new IntCodeInstruction(this);
             int tempOpCode = memory[IP];
             instr.OpCode = (IntCodeOp)(tempOpCode % 100);
 
@@ -92,7 +115,7 @@ namespace AdventOfCode.Utilities
             instr.Length = paramCount + 1;
 
             instr.Parameters = new int[paramCount];
-            instr.ParameterModes = new IntCodeMode[paramCount];
+            instr.Modes = new IntCodeMode[paramCount];
 
             for (var x = 0; x < paramCount; x++)
             {
@@ -107,28 +130,16 @@ namespace AdventOfCode.Utilities
                 switch (accessMask % 10)
                 {
                     case 0:
-                        instr.ParameterModes[x] = IntCodeMode.POSITION;
+                        instr.Modes[x] = IntCodeMode.POSITION;
                         break;
                     case 1:
-                        instr.ParameterModes[x] = IntCodeMode.IMMEDIATE;
+                        instr.Modes[x] = IntCodeMode.IMMEDIATE;
                         break;
                 }
                 accessMask /= 10;
             }
 
             return instr;
-        }
-
-        public int ResolveParam(IntCodeInstruction instr, int paramNum)
-        {
-            switch (instr.ParameterModes[paramNum - 1])
-            {
-                case IntCodeMode.IMMEDIATE:
-                    return instr.Parameters[paramNum - 1];
-                case IntCodeMode.POSITION:
-                    return memory[instr.Parameters[paramNum - 1]];
-            }
-            return 0;
         }
 
         public void RunProgram()
@@ -142,51 +153,51 @@ namespace AdventOfCode.Utilities
                     case IntCodeOp.HALT:
                         return;
                     case IntCodeOp.ADD:
-                        SetMemory(instr.Parameters[2], ResolveParam(instr, 1) + ResolveParam(instr, 2));
+                        WriteMemory(instr.Parameters[2], instr.GetParam(1) + instr.GetParam(2));
                         break;
                     case IntCodeOp.MULT:
-                        SetMemory(instr.Parameters[2], ResolveParam(instr, 1) * ResolveParam(instr, 2));
+                        WriteMemory(instr.Parameters[2], instr.GetParam(1) * instr.GetParam(2));
                         break;
                     case IntCodeOp.INPUT:
-                        SetMemory(instr.Parameters[0], Inputs.Dequeue());
+                        WriteMemory(instr.Parameters[0], Inputs.Dequeue());
                         break;
                     case IntCodeOp.OUTPUT:
-                        Outputs.Add(ResolveParam(instr, 1));
+                        Outputs.Add(instr.GetParam(1));
                         break;
                     case IntCodeOp.JUMP_TRUE:
-                        if (ResolveParam(instr,1) != 0)
+                        if (instr.GetParam(1) != 0)
                         {
-                            IP = ResolveParam(instr, 2);
+                            IP = instr.GetParam(2);
                             IPModified = true;
                         }
                         break;
                     case IntCodeOp.JUMP_FALSE:
-                        if (ResolveParam(instr, 1) == 0)
+                        if (instr.GetParam(1) == 0)
                         {
-                            IP = ResolveParam(instr, 2);
+                            IP = instr.GetParam(2);
                             IPModified = true;
                         }
                         break;
                     case IntCodeOp.LT:
-                        if (ResolveParam(instr,1) < ResolveParam(instr,2))
+                        if (instr.GetParam(1) < instr.GetParam(2))
                         {
-                            SetMemory(instr.Parameters[2], 1);
+                            WriteMemory(instr.Parameters[2], 1);
                         } else
                         {
-                            SetMemory(instr.Parameters[2], 0);
+                            WriteMemory(instr.Parameters[2], 0);
                         }
                         break;
                     case IntCodeOp.EQUALS:
-                        if (ResolveParam(instr, 1) == ResolveParam(instr, 2))
+                        if (instr.GetParam(1) == instr.GetParam(2))
                         {
-                            SetMemory(instr.Parameters[2], 1);
+                            WriteMemory(instr.Parameters[2], 1);
                         } else
                         {
-                            SetMemory(instr.Parameters[2], 0);
+                            WriteMemory(instr.Parameters[2], 0);
                         }
                         break;
                 }
-                if (!IPModified)
+                if (IPModified == false)
                 {
                     IP += instr.Length;
                 }
@@ -199,7 +210,7 @@ namespace AdventOfCode.Utilities
             return memory[x];
         }
 
-        public void SetMemory(int x, int value)
+        public void WriteMemory(int x, int value)
         {
             memory[x] = value;
         }
