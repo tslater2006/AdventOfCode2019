@@ -7,7 +7,7 @@ namespace AdventOfCode.Solutions.Year2019 {
     class Day05 : ASolution {
         IntCodeVM vm = null;
         public Day05() : base(5, 2019, "Sunny with a Chance of Asteroids") {
-            vm = new IntCodeVM(Input[0]);
+            vm = new IntCodeVM(Input[0]); 
         }
 
         protected override string SolvePartOne() {
@@ -18,7 +18,7 @@ namespace AdventOfCode.Solutions.Year2019 {
         }
 
         protected override string SolvePartTwo() {
-            vm = new IntCodeVM(Input[0]);
+            vm.Reset();
             vm.WriteInput(5);
             vm.RunProgram();
             List<int> outputs = vm.ReadOutputs();
