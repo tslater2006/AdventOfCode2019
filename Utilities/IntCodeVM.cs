@@ -127,15 +127,7 @@ namespace AdventOfCode.Utilities
 
             for (var x = 0; x < paramCount; x++)
             {
-                switch (accessMask % 10)
-                {
-                    case 0:
-                        instr.Modes[x] = IntCodeMode.POSITION;
-                        break;
-                    case 1:
-                        instr.Modes[x] = IntCodeMode.IMMEDIATE;
-                        break;
-                }
+                instr.Modes[x] = (IntCodeMode)(accessMask % 10);
                 accessMask /= 10;
             }
 
