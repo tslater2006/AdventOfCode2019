@@ -44,13 +44,17 @@ namespace AdventOfCode.Utilities
         POSITION = 0, IMMEDIATE = 1
     }
 
+    enum HaltType
+    {
+        HALT_TERMINATE, HALT_WAITING
+    }
 
     class IntCodeVM
     {
         int[] program;
         public int[] memory;
         Queue<int> Inputs = new Queue<int>();
-        List<int> Outputs = new List<int>();
+        Queue<int> Outputs = new Queue<int>();
 
         int IP;
         public IntCodeVM(string prog)
@@ -72,9 +76,14 @@ namespace AdventOfCode.Utilities
             Inputs.Enqueue(input);
         }
 
-        public List<int> ReadOutputs()
+        public Queue<int> ReadOutputs()
         {
             return Outputs;
+        }
+
+        public int PopOutput()
+        {
+            return Outputs.Dequeue();
         }
 
         private IntCodeInstruction ParseOpCode()
@@ -134,7 +143,7 @@ namespace AdventOfCode.Utilities
             return instr;
         }
 
-        public void RunProgram()
+        public HaltType RunProgram()
         {
             while (true)
             {
@@ -143,7 +152,7 @@ namespace AdventOfCode.Utilities
                 switch (instr.OpCode)
                 {
                     case IntCodeOp.HALT:
-                        return;
+                        return HaltType.HALT_TERMINATE;
                     case IntCodeOp.ADD:
                         WriteMemory(instr.Parameters[2], instr.GetParam(1) + instr.GetParam(2));
                         break;
@@ -151,10 +160,15 @@ namespace AdventOfCode.Utilities
                         WriteMemory(instr.Parameters[2], instr.GetParam(1) * instr.GetParam(2));
                         break;
                     case IntCodeOp.INPUT:
+                        if (Inputs.Count == 0)
+                        {
+                            /* no inputs, lets wait... */
+                            return HaltType.HALT_WAITING;
+                        }
                         WriteMemory(instr.Parameters[0], Inputs.Dequeue());
                         break;
                     case IntCodeOp.OUTPUT:
-                        Outputs.Add(instr.GetParam(1));
+                        Outputs.Enqueue(instr.GetParam(1));
                         break;
                     case IntCodeOp.JUMP_TRUE:
                         if (instr.GetParam(1) != 0)
