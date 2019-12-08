@@ -11,7 +11,7 @@ namespace AdventOfCode.Solutions.Year2019 {
 
         IntCodeVM[] Amplifiers = new IntCodeVM[5];
 
-        public Day07() : base(7, 2019, "") {
+        public Day07() : base(7, 2019, "Amplification Circuit") {
             for(var x = 0; x < 5; x++)
             {
                 Amplifiers[x] = new IntCodeVM(Input[0]);
@@ -61,6 +61,7 @@ namespace AdventOfCode.Solutions.Year2019 {
             foreach (var combo in possibleCombinations)
             {
                 int[] phases = combo.ToArray();
+                phases = new int[] { 9,8,7,6,5 };
                 foreach (var amp in Amplifiers)
                 {
                     amp.Reset();
@@ -89,13 +90,15 @@ namespace AdventOfCode.Solutions.Year2019 {
                     }
 
                     ampOutput = curAmp.PopOutput();
+                    if (AmpIndex == 0) { Console.WriteLine(); }
+                    Console.Write(ampOutput.ToString() + ", ");
                 }
 
                 if (ampOutput > maxScore)
                 {
                     maxScore = ampOutput;
                 }
-
+                break;
             }
             return maxScore.ToString(); 
         }
