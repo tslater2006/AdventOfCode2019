@@ -18,7 +18,7 @@ namespace AdventOfCode.Solutions.Year2019 {
             vm.RunProgram();
 
             /* read out memory 0 */
-            int result = vm.ReadMemory(0);
+            long result = vm.ReadMemory(0);
 
             return result.ToString(); 
         }

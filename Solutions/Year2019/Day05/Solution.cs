@@ -21,7 +21,7 @@ namespace AdventOfCode.Solutions.Year2019 {
             vm.Reset();
             vm.WriteInput(5);
             vm.RunProgram();
-            Queue<int> outputs = vm.ReadOutputs();
+            Queue<long> outputs = vm.ReadOutputs();
             return outputs.Last().ToString();
         }
     }

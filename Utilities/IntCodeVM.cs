@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -10,7 +11,7 @@ namespace AdventOfCode.Utilities
     {
         private IntCodeVM VM;
         public IntCodeOp OpCode;
-        public int[] Parameters;
+        public long[] Parameters;
         public IntCodeMode[] Modes;
         public int Length;
 
@@ -19,7 +20,7 @@ namespace AdventOfCode.Utilities
             VM = vmInst;
         }
 
-        public int GetParam(int paramNum)
+        public long GetParam(int paramNum)
         {
             if (Modes[paramNum - 1] == IntCodeMode.POSITION)
             {
@@ -27,6 +28,22 @@ namespace AdventOfCode.Utilities
             } else if (Modes[paramNum - 1] == IntCodeMode.IMMEDIATE)
             {
                 return Parameters[paramNum - 1];
+            } else if (Modes[paramNum -1] == IntCodeMode.RELATIVE)
+            {
+                return VM.memory[VM.RelativeBase + Parameters[paramNum - 1]];
+            }
+
+            throw new FormatException();
+        }
+
+        public long GetWriteAddress(int paramNum)
+        {
+            if (Modes[paramNum -1] == IntCodeMode.POSITION)
+            {
+                return Parameters[paramNum - 1];
+            } else if (Modes[paramNum -1] == IntCodeMode.RELATIVE)
+            {
+                return VM.RelativeBase + Parameters[paramNum - 1];
             }
 
             throw new FormatException();
@@ -36,12 +53,12 @@ namespace AdventOfCode.Utilities
 
     enum IntCodeOp : int
     {
-        ADD = 1, MULT = 2, INPUT = 3, OUTPUT = 4, JUMP_TRUE = 5, JUMP_FALSE = 6, LT = 7, EQUALS = 8, HALT = 99
+        ADD = 1, MULT = 2, INPUT = 3, OUTPUT = 4, JUMP_TRUE = 5, JUMP_FALSE = 6, LT = 7, EQUALS = 8, ADJUST_REL_BASE = 9, HALT = 99
     }
 
     enum IntCodeMode : int
     {
-        POSITION = 0, IMMEDIATE = 1
+        POSITION = 0, IMMEDIATE = 1, RELATIVE = 2
     }
 
     enum HaltType
@@ -51,37 +68,38 @@ namespace AdventOfCode.Utilities
 
     class IntCodeVM
     {
-        int[] program;
-        public int[] memory;
-        Queue<int> Inputs = new Queue<int>();
-        Queue<int> Outputs = new Queue<int>();
-
-        int IP;
+        long[] program;
+        public long[] memory = new long[100 * 1024];
+        Queue<long> Inputs = new Queue<long>();
+        Queue<long> Outputs = new Queue<long>();
+        public long RelativeBase = 0;
+        long IP;
         public IntCodeVM(string prog)
         {
-            program = prog.Split(',').Select(s => int.Parse(s)).ToArray();
-            memory = new int[program.Length];
+            program = prog.Split(',').Select(s => long.Parse(s)).ToArray();
             program.CopyTo(memory, 0);
             IP = 0;
         }
         public void Reset()
         {
+            Array.Clear(memory, 0, memory.Length);
             program.CopyTo(memory, 0);
             IP = 0;
             Inputs.Clear();
             Outputs.Clear();
+            RelativeBase = 0;
         }
-        public void WriteInput(int input)
+        public void WriteInput(long input)
         {
             Inputs.Enqueue(input);
         }
 
-        public Queue<int> ReadOutputs()
+        public Queue<long> ReadOutputs()
         {
             return Outputs;
         }
 
-        public int PopOutput()
+        public long PopOutput()
         {
             return Outputs.Dequeue();
         }
@@ -89,7 +107,7 @@ namespace AdventOfCode.Utilities
         private IntCodeInstruction ParseOpCode()
         {
             IntCodeInstruction instr = new IntCodeInstruction(this);
-            int tempOpCode = memory[IP];
+            long tempOpCode = memory[IP];
             instr.OpCode = (IntCodeOp)(tempOpCode % 100);
 
             int paramCount = 0;
@@ -119,11 +137,14 @@ namespace AdventOfCode.Utilities
                 case IntCodeOp.EQUALS:
                     paramCount = 3;
                     break;
+                case IntCodeOp.ADJUST_REL_BASE:
+                    paramCount = 1;
+                    break;
             }
 
             instr.Length = paramCount + 1;
 
-            instr.Parameters = new int[paramCount];
+            instr.Parameters = new long[paramCount];
             instr.Modes = new IntCodeMode[paramCount];
 
             for (var x = 0; x < paramCount; x++)
@@ -154,10 +175,10 @@ namespace AdventOfCode.Utilities
                     case IntCodeOp.HALT:
                         return HaltType.HALT_TERMINATE;
                     case IntCodeOp.ADD:
-                        WriteMemory(instr.Parameters[2], instr.GetParam(1) + instr.GetParam(2));
+                        WriteMemory(instr.GetWriteAddress(3), instr.GetParam(1) + instr.GetParam(2));
                         break;
                     case IntCodeOp.MULT:
-                        WriteMemory(instr.Parameters[2], instr.GetParam(1) * instr.GetParam(2));
+                        WriteMemory(instr.GetWriteAddress(3), instr.GetParam(1) * instr.GetParam(2));
                         break;
                     case IntCodeOp.INPUT:
                         if (Inputs.Count == 0)
@@ -165,7 +186,9 @@ namespace AdventOfCode.Utilities
                             /* no inputs, lets wait... */
                             return HaltType.HALT_WAITING;
                         }
-                        WriteMemory(instr.Parameters[0], Inputs.Dequeue());
+                        
+                        WriteMemory(instr.GetWriteAddress(1), Inputs.Dequeue());
+
                         break;
                     case IntCodeOp.OUTPUT:
                         Outputs.Enqueue(instr.GetParam(1));
@@ -187,20 +210,23 @@ namespace AdventOfCode.Utilities
                     case IntCodeOp.LT:
                         if (instr.GetParam(1) < instr.GetParam(2))
                         {
-                            WriteMemory(instr.Parameters[2], 1);
+                            WriteMemory(instr.GetWriteAddress(3), 1);
                         } else
                         {
-                            WriteMemory(instr.Parameters[2], 0);
+                            WriteMemory(instr.GetWriteAddress(3), 0);
                         }
                         break;
                     case IntCodeOp.EQUALS:
                         if (instr.GetParam(1) == instr.GetParam(2))
                         {
-                            WriteMemory(instr.Parameters[2], 1);
+                            WriteMemory(instr.GetWriteAddress(3), 1);
                         } else
                         {
-                            WriteMemory(instr.Parameters[2], 0);
+                            WriteMemory(instr.GetWriteAddress(3), 0);
                         }
+                        break;
+                    case IntCodeOp.ADJUST_REL_BASE:
+                        RelativeBase += instr.GetParam(1);
                         break;
                 }
                 if (IPModified == false)
@@ -211,14 +237,17 @@ namespace AdventOfCode.Utilities
             }
         }
     
-        public int ReadMemory(int x)
+        public long ReadMemory(long x)
         {
             return memory[x];
         }
 
-        public void WriteMemory(int x, int value)
+        public void WriteMemory(long x, long value)
         {
-            memory[x] = value;
+            if (x >= 0)
+            {
+                memory[x] = value;
+            }
         }
     }
 }

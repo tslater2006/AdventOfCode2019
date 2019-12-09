@@ -21,7 +21,7 @@ namespace AdventOfCode.Solutions.Year2019 {
         protected override string SolvePartOne() {
 
             var possibleCombinations = Enumerable.Range(0, 5).Permutations().ToList();
-            var maxScore = 0;
+            long maxScore = 0;
             foreach (var combo in possibleCombinations)
             {
                 int[] phases = combo.ToArray();
@@ -31,7 +31,7 @@ namespace AdventOfCode.Solutions.Year2019 {
                     amp.Reset();
                 }
 
-                int ampOutput = 0;
+                long ampOutput = 0;
 
                 for (var x = 0; x < 5; x++)
                 {
@@ -57,7 +57,7 @@ namespace AdventOfCode.Solutions.Year2019 {
 
         protected override string SolvePartTwo() {
             var possibleCombinations = Enumerable.Range(5, 5).Permutations().ToList();
-            var maxScore = 0;
+            long maxScore = 0;
             foreach (var combo in possibleCombinations)
             {
                 int[] phases = combo.ToArray();
@@ -73,7 +73,7 @@ namespace AdventOfCode.Solutions.Year2019 {
                 }
 
                 Queue<IntCodeVM> vmLoop = new Queue<IntCodeVM>(Amplifiers);
-                int ampOutput = 0;
+                long ampOutput = 0;
                 int ampTerminations = 0;
                 while (vmLoop.Count > 0)
                 {
