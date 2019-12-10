@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace AdventOfCode.Solutions.Year2019 {
@@ -33,7 +34,7 @@ namespace AdventOfCode.Solutions.Year2019 {
         {
             var tempMap = (bool[,])OriginalMap.Clone();
             int visibleCount = 0;
-            HashSet<(int,int)> SeenSlopes = new HashSet<(int,int)>();
+            HashSet<Slope> SeenSlopes = new HashSet<Slope>();
             for (var r = 0; r < Rows; r++)
             {
                 for (var c = 0; c < Cols; c++)
@@ -58,7 +59,7 @@ namespace AdventOfCode.Solutions.Year2019 {
             return visibleCount;
         }
 
-        private (int,int) GetSlope(int row1, int col1, int row2, int col2)
+        private Slope GetSlope(int row1, int col1, int row2, int col2)
         {
             var rise = row1 - row2;
             var run = col1 - col2;
@@ -76,21 +77,21 @@ namespace AdventOfCode.Solutions.Year2019 {
             {
                 if (rise == 0 && run > 0)
                 {
-                    return (0, 1);
+                    return new Slope(0, 1);
                 } else if (rise == 0 && run < 0)
                 {
-                    return (0, -1);
+                    return new Slope(0, -1);
                 } else if (rise > 0 && run == 0)
                 {
-                    return (1, 0);
+                    return new Slope(1, 0);
                 }
                 else if (rise < 0 && run == 0)
                 {
-                    return (-1, 0);
+                    return new Slope(-1, 0);
                 }
             }
 
-            return (rise, run);
+            return new Slope(rise, run);
         }
 
 
@@ -132,10 +133,9 @@ namespace AdventOfCode.Solutions.Year2019 {
         {
             return (Math.Sqrt(Math.Pow(x2 - x1,2) + Math.Pow(y2 - y1,2)));
         }
-        protected Dictionary<(int, int), (int, int)> GetVisibleAsteroids(bool[,] AsteroidMap, int row, int col)
+        protected Dictionary<Slope, Point> GetVisibleAsteroids(bool[,] AsteroidMap, int row, int col)
         {
-            int visibleCount = 0;
-            Dictionary<(int, int), (int, int)> VisibleAsteroids = new Dictionary<(int, int), (int, int)>();
+            Dictionary<Slope, Point> VisibleAsteroids = new Dictionary<Slope, Point>();
             for (var r = 0; r < Rows; r++)
             {
                 for (var c = 0; c < Cols; c++)
@@ -151,13 +151,13 @@ namespace AdventOfCode.Solutions.Year2019 {
                         if (VisibleAsteroids.ContainsKey(slope))
                         {
                             /* determine which is closer */
-                            if (Dist(row,col, r,c) < Dist(row,col,VisibleAsteroids[slope].Item1, VisibleAsteroids[slope].Item2))
+                            if (Dist(row,col, r,c) < Dist(row,col,VisibleAsteroids[slope].Y, VisibleAsteroids[slope].X))
                             {
-                                VisibleAsteroids[slope] = (r, c);
+                                VisibleAsteroids[slope] = new Point(r, c);
                             }
                         } else
                         {
-                            VisibleAsteroids.Add(slope, (r, c));
+                            VisibleAsteroids.Add(slope, new Point(r, c));
                         }
                     }
                 }
@@ -175,7 +175,7 @@ namespace AdventOfCode.Solutions.Year2019 {
             /* list items are (rise,run,row,col) */
             foreach(var a in asteroids)
             {
-                flatList.Add((Math.Atan2(a.Key.Item2, a.Key.Item1), a.Value.Item1, a.Value.Item2));
+                flatList.Add((Math.Atan2(a.Key.Run, a.Key.Rise), a.Value.X, a.Value.Y));
             }
 
             /* sort by atan2 of run (x), and rise (y) */
@@ -197,6 +197,32 @@ namespace AdventOfCode.Solutions.Year2019 {
             var ans = item.Item3 * 100 + item.Item2;
 
             return ans.ToString(); 
+        }
+
+        protected struct Slope
+        {
+            public int Rise;
+            public int Run;
+
+            public Slope(int rise, int run)
+            {
+                Rise = rise;
+                Run = run;
+            }
+
+            public override int GetHashCode()
+            {
+                return Rise.GetHashCode() + Run.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj.GetType().Equals(typeof(Slope))){
+                    Slope s = (Slope)obj;
+                    return (Rise == s.Rise && Run == s.Run);
+                }
+                return false;
+            }
         }
     }
 }
