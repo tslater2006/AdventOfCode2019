@@ -69,7 +69,7 @@ namespace AdventOfCode.Utilities
     class IntCodeVM
     {
         long[] program;
-        public long[] memory = new long[100 * 1024];
+        public long[] memory = null;
         Queue<long> Inputs = new Queue<long>();
         Queue<long> Outputs = new Queue<long>();
         public long RelativeBase = 0;
@@ -77,12 +77,20 @@ namespace AdventOfCode.Utilities
         public IntCodeVM(string prog)
         {
             program = prog.Split(',').Select(s => long.Parse(s)).ToArray();
+            memory = new long[program.Length];
             program.CopyTo(memory, 0);
             IP = 0;
         }
         public void Reset()
         {
-            Array.Clear(memory, 0, memory.Length);
+            if (memory.Length == program.Length)
+            {
+                Array.Clear(memory, 0, memory.Length);
+            } else
+            {
+                memory = new long[program.Length];
+            }
+
             program.CopyTo(memory, 0);
             IP = 0;
             Inputs.Clear();
@@ -236,14 +244,27 @@ namespace AdventOfCode.Utilities
                 IPModified = false;
             }
         }
-    
+        private void ResizeMemory(long size)
+        {
+            var newMem = new long[size];
+            memory.CopyTo(newMem, 0);
+            memory = newMem;
+        }
         public long ReadMemory(long x)
         {
+            if (x > memory.Length-1)
+            {
+                ResizeMemory(x + 1);
+            }
             return memory[x];
         }
 
         public void WriteMemory(long x, long value)
         {
+            if (x > memory.Length -1)
+            {
+                ResizeMemory(x + 1);
+            }
             if (x >= 0)
             {
                 memory[x] = value;
