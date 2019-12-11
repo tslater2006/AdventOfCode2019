@@ -24,13 +24,13 @@ namespace AdventOfCode.Utilities
         {
             if (Modes[paramNum - 1] == IntCodeMode.POSITION)
             {
-                return VM.memory[Parameters[paramNum - 1]];
+                return VM.ReadMemory(Parameters[paramNum - 1]);
             } else if (Modes[paramNum - 1] == IntCodeMode.IMMEDIATE)
             {
                 return Parameters[paramNum - 1];
             } else if (Modes[paramNum -1] == IntCodeMode.RELATIVE)
             {
-                return VM.memory[VM.RelativeBase + Parameters[paramNum - 1]];
+                return VM.ReadMemory(VM.RelativeBase + Parameters[paramNum - 1]);
             }
 
             throw new FormatException();
