@@ -9,7 +9,7 @@ namespace AdventOfCode.Solutions.Year2019 {
 
     class Day11 : ASolution {
         IntCodeVM vm = null;
-        public Day11() : base(11, 2019, "") {
+        public Day11() : base(11, 2019, "Space Police") {
             vm = new IntCodeVM(Input[0]);
         }
 
