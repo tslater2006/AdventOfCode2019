@@ -90,8 +90,6 @@ namespace AdventOfCode.Solutions.Year2019 {
                     }
 
                     ampOutput = curAmp.PopOutput();
-                    if (AmpIndex == 0) { Console.WriteLine(); }
-                    Console.Write(ampOutput.ToString() + ", ");
                 }
 
                 if (ampOutput > maxScore)
