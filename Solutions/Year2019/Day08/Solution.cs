@@ -1,7 +1,8 @@
-using AdventOfCode.Utilities;
+﻿using AdventOfCode.Utilities;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Text;
 
 namespace AdventOfCode.Solutions.Year2019 {
 
@@ -25,7 +26,8 @@ namespace AdventOfCode.Solutions.Year2019 {
             return ans.ToString(); 
         }
 
-        protected override string SolvePartTwo() {
+        protected override string SolvePartTwo()
+        {
             /* my %key = (
   'A' => [[0,1,1,1,1,1],[1,0,0,1,0,0],[1,0,0,1,0,0],[0,1,1,1,1,1],[0,0,0,0,0,0]],
   'B' => [[1,1,1,1,1,1],[1,0,1,0,0,1],[1,0,1,0,0,1],[0,1,0,1,1,0],[0,0,0,0,0,0]],
@@ -44,9 +46,28 @@ namespace AdventOfCode.Solutions.Year2019 {
   'Z' => [[1,0,0,0,1,1],[1,0,0,1,0,1],[1,0,1,0,0,1],[1,1,0,0,0,1],[0,0,0,0,0,0]],
 ); */
             var bmp = image.RenderImage();
-            bmp.Save("Day8Part2.png", ImageFormat.Png);
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine();
+            for (var y = 0; y < bmp.Height; y++)
+            {
+                for (var x = 0; x < bmp.Width; x++)
+                {
+                    if (bmp.GetPixel(x, y).ToArgb() == Color.White.ToArgb())
+                    {
+                        sb.Append('█');
+                    }
+                    else
+                    {
+                        sb.Append(' ');
+                    }
+                }
+                sb.AppendLine();
+            }
 
-            return "Answer saved as Day8Part2.png"; 
+
+            // bmp.Save("Day8Part2.png", ImageFormat.Png);
+
+            return sb.ToString();
         }
     }
 }
