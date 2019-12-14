@@ -8,7 +8,7 @@ namespace AdventOfCode.Utilities
 {
     public class Refinery
     {
-        public List<RefineryReaction> Reactions = new List<RefineryReaction>();
+        public Dictionary<string,RefineryReaction> Reactions = new Dictionary<string,RefineryReaction>();
         public Dictionary<string, int> Surplus = new Dictionary<string, int>();
         public long OreRequired = 0;
         public Refinery(string[] reactionList)
@@ -37,7 +37,7 @@ namespace AdventOfCode.Utilities
 
                     precursors.Add(production);
                 }
-                Reactions.Add(new RefineryReaction() { Output = outputProduction, Precursors = precursors });
+                Reactions.Add(outputProduction.Chemical, new RefineryReaction() { Output = outputProduction, Precursors = precursors });
             }
         }
 
@@ -69,7 +69,7 @@ namespace AdventOfCode.Utilities
             }
 
             /* get the reaction that can make this request */
-            var reaction = Reactions.Where(r => r.Output.Chemical.Equals(request.Chemical)).First();
+            var reaction = Reactions[request.Chemical];
 
             /* determine scale based on requested amount and production amount */
             var reactionRepeat = (int)Math.Ceiling((double)request.Amount / (double)reaction.Output.Amount);
