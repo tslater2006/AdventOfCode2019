@@ -33,7 +33,7 @@ namespace AdventOfCode.Solutions {
                 var solutions = Assembly
                     .GetExecutingAssembly()
                     .GetTypes()
-                    .Where(type => type.Namespace == $"AdventOfCode.Solutions.Year{year}");
+                    .Where(type => type.Namespace == $"AdventOfCode.Solutions.Year{year}" && type.BaseType.Equals(typeof(ASolution)));
                 foreach(Type solution in solutions) {
                     yield return (ASolution) Activator.CreateInstance(solution);
                 }
