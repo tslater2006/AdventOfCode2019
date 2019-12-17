@@ -7,7 +7,7 @@ namespace AdventOfCode.Solutions.Year2019 {
 
     class Day16 : ASolution {
         FFT fft;
-        public Day16() : base(16, 2019, "") {
+        public Day16() : base(16, 2019, "Flawed Frequency Transmission") {
         }
 
         protected override string SolvePartOne() {

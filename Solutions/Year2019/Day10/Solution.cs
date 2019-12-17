@@ -12,7 +12,7 @@ namespace AdventOfCode.Solutions.Year2019 {
         int Rows;
         int Cols;
         int BestR = 0, BestC = 0;
-        public Day10() : base(10, 2019, "") {
+        public Day10() : base(10, 2019, "Monitoring Station") {
 
             Rows = Input.Length;
             Cols = Input[0].Length;

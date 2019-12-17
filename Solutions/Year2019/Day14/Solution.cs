@@ -8,7 +8,7 @@ namespace AdventOfCode.Solutions.Year2019
     {
 
         Refinery Refinery;
-        public Day14() : base(14, 2019, "")
+        public Day14() : base(14, 2019, "Space Stoichiometry")
         {
             Refinery = new Refinery(Input);
         }

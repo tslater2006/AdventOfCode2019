@@ -187,7 +187,7 @@ namespace AdventOfCode.Solutions.Year2019
                 }
             }
 
-            /* for (var y = 0; y < map.GetLength(0); y++)
+            /*for (var y = 0; y < map.GetLength(0); y++)
             {
                 for (var x = 0; x < map.GetLength(1); x++)
                 {
@@ -206,7 +206,7 @@ namespace AdventOfCode.Solutions.Year2019
                     }
                 }
                 Console.WriteLine();
-            } */
+            }*/
 
             intersections = intersections.OrderBy(p => p.Y).ThenBy(p => p.X).ToList();
             var ans = intersections.Sum(p => p.X * p.Y);

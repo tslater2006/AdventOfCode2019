@@ -17,7 +17,7 @@ namespace AdventOfCode.Solutions.Year2019 {
         Point StartPoint;
         Point TargetPoint;
 
-        public Day15() : base(15, 2019, "") {
+        public Day15() : base(15, 2019, "Oxygen System") {
             vm = new IntCodeVM(Input[0]);
             BuildMaze();
         }
