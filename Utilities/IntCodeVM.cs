@@ -14,6 +14,109 @@ namespace AdventOfCode.Utilities
         public long[] Parameters;
         public IntCodeMode[] Modes;
         public int Length;
+        Dictionary<int, string> ParameterNames = null;
+
+        public void SetParameterName(int param, string name)
+        {
+            if (ParameterNames == null)
+            {
+                ParameterNames = new Dictionary<int, string>();
+            }
+
+            if (ParameterNames.ContainsKey(param))
+            {
+                ParameterNames[param] = name;
+            } else
+            {
+                ParameterNames.Add(param, name);
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj.GetType().Equals(typeof(IntCodeInstruction)))
+            {
+                IntCodeInstruction objI = (IntCodeInstruction)obj;
+                if(OpCode.Equals(objI.OpCode) && Parameters.SequenceEqual(objI.Parameters) && Modes.SequenceEqual(objI.Modes))
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                return false;
+            }
+            return base.Equals(obj);
+        }
+
+        public override string ToString()
+        {
+            SetParameterName(3, "dest");
+            StringBuilder sb = new StringBuilder();
+            switch (OpCode)
+            {
+                case IntCodeOp.ADD:
+                    sb.Append("ADD ");
+                    break;
+                case IntCodeOp.MULT:
+                    sb.Append("MULT ");
+                    break;
+                case IntCodeOp.INPUT:
+                    sb.Append("IN ");
+                    break;
+                case IntCodeOp.OUTPUT:
+                    sb.Append("OUT ");
+                    break;
+                case IntCodeOp.JUMP_TRUE:
+                    sb.Append("J!=0 ");
+                    break;
+                case IntCodeOp.JUMP_FALSE:
+                    sb.Append("J==0 ");
+                    break;
+                case IntCodeOp.LT:
+                    sb.Append("CMP< ");
+                    break;
+                case IntCodeOp.EQUALS:
+                    sb.Append("CMP= ");
+                    break;
+                case IntCodeOp.ADJUST_REL_BASE:
+                    sb.Append("SP+ ");
+                    break;
+                case IntCodeOp.HALT:
+                    sb.Append("SP+ ");
+                    break;
+
+            }
+
+            for (var x = 0; x < Parameters.Length; x++)
+            {
+                if (ParameterNames.ContainsKey(x + 1))
+                {
+                    sb.Append(ParameterNames[x + 1]);
+                }
+                else
+                {
+                    switch (Modes[x])
+                    {
+                        case IntCodeMode.IMMEDIATE:
+                            sb.Append(Parameters[x]);
+                            break;
+                        case IntCodeMode.POSITION:
+                            sb.Append("[" + Parameters[x] + "]");
+                            break;
+                        case IntCodeMode.RELATIVE:
+                            sb.Append("[SP+" + Parameters[x] + "]");
+                            break;
+                    }
+                }
+                if (x < Parameters.Length - 1)
+                {
+                    sb.Append(", ");
+                }
+            }
+
+            return sb.ToString();
+        }
 
         public IntCodeInstruction(IntCodeVM vmInst)
         {
@@ -73,7 +176,11 @@ namespace AdventOfCode.Utilities
         Queue<long> Inputs = new Queue<long>();
         Queue<long> Outputs = new Queue<long>();
         public long RelativeBase = 0;
+        public bool EnableInstrumentation = false;
         long IP;
+        Dictionary<long, List<IntCodeInstruction>> InstructionLog = new Dictionary<long, List<IntCodeInstruction>>();
+        List<long> InputLog = new List<long>();
+        List<long> OutputLog = new List<long>();
         public IntCodeVM(string prog)
         {
             program = prog.Split(',').Select(s => long.Parse(s)).ToArray();
@@ -102,6 +209,13 @@ namespace AdventOfCode.Utilities
             Inputs.Enqueue(input);
         }
 
+        public void WriteInputString(string s)
+        {
+            foreach(var c in s)
+            {
+                WriteInput((long)c);
+            }
+        }
         public Queue<long> ReadOutputs()
         {
             return Outputs;
@@ -113,6 +227,27 @@ namespace AdventOfCode.Utilities
         }
 
         private IntCodeInstruction ParseOpCode()
+        {
+            var opCode = ParseOpCode(IP);
+
+            if (EnableInstrumentation)
+            {
+                if (InstructionLog.ContainsKey(IP))
+                {
+                    if (InstructionLog[IP].Contains(opCode) == false)
+                    {
+                        InstructionLog[IP].Add(opCode);
+                    }
+                } else
+                {
+                    InstructionLog.Add(IP, new List<IntCodeInstruction>() { opCode });
+                }
+            }
+
+            return opCode;
+        }
+
+        public IntCodeInstruction ParseOpCode(long address)
         {
             IntCodeInstruction instr = new IntCodeInstruction(this);
             long tempOpCode = memory[IP];
@@ -177,6 +312,7 @@ namespace AdventOfCode.Utilities
             while (true)
             {
                 IntCodeInstruction instr = ParseOpCode();
+                //Console.WriteLine(IP.ToString("D8") + ":  " + instr);
                 bool IPModified = false;
                 switch (instr.OpCode)
                 {
@@ -194,12 +330,20 @@ namespace AdventOfCode.Utilities
                             /* no inputs, lets wait... */
                             return HaltType.HALT_WAITING;
                         }
-                        
+                        if (EnableInstrumentation)
+                        {
+                            InputLog.Add(Inputs.Peek());
+                        }
                         WriteMemory(instr.GetWriteAddress(1), Inputs.Dequeue());
 
                         break;
                     case IntCodeOp.OUTPUT:
-                        Outputs.Enqueue(instr.GetParam(1));
+                        var outputValue = instr.GetParam(1);
+                        if (EnableInstrumentation)
+                        {
+                            OutputLog.Add(outputValue);
+                        }
+                        Outputs.Enqueue(outputValue);
                         break;
                     case IntCodeOp.JUMP_TRUE:
                         if (instr.GetParam(1) != 0)
