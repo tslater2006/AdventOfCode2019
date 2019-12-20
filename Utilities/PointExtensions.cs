@@ -15,6 +15,16 @@ namespace AdventOfCode.Utilities
             yield return new Point(p.X, p.Y - 1);
         }
 
+        public static Point Add(this Point p, Point p2)
+        {
+            return new Point(p.X + p2.X, p.Y + p2.Y);
+        }
+
+        public static Point Subtract(this Point p, Point p2)
+        {
+            return new Point(p.X - p2.X, p.Y - p2.Y);
+        }
+
         public static IEnumerable<Point> Around(this Point p, int minX, int minY, int maxX, int maxY)
         {
             if (p.X + 1 >= minX && p.X + 1 <= maxX)

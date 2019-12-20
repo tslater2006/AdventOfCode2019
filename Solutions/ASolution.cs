@@ -73,7 +73,7 @@ namespace AdventOfCode.Solutions {
                 try {
                     using(var client = new WebClient()) {
                         client.Headers.Add(HttpRequestHeader.Cookie, Program.Config.Cookie);
-                        File.WriteAllText(INPUT_FILEPATH, client.DownloadString(INPUT_URL).Trim());
+                        File.WriteAllText(INPUT_FILEPATH, client.DownloadString(INPUT_URL));
                         input = File.ReadAllLines(INPUT_FILEPATH);
                     }
                 } catch(WebException e) {
