@@ -1,9 +1,11 @@
 using AdventOfCode.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace AdventOfCode.Solutions.Year2019
 {
@@ -29,15 +31,17 @@ namespace AdventOfCode.Solutions.Year2019
         protected override string SolvePartOne()
         {
             ParseMap();
-            CleanDeadEnds();
             ProcessGates();
-            //PrintMap();
-
-            var ans = WalkMaze(new MazeState() { Location = GateToPoints["AA"][0], Distance = 0, Level = 0 }).ToString();
-            return ans;
+            var ans = WalkMaze(new MazeState() { Location = GateToPoints["AA"][0], Distance = 0, Level = 0 });
+            StringBuilder sb = new StringBuilder();
+            sb.Append(ans.Distance.ToString());
+            sb.AppendLine("AA -> ");
+            ans.Gates.ForEach(g => sb.Append(g.Item1).Append(" -> "));
+            sb.AppendLine("ZZ");
+            return sb.ToString();
         }
 
-        int WalkMaze(MazeState state, bool recursive = false)
+        MazeState WalkMaze(MazeState state, bool recursive = false)
         {
             Queue<MazeState> ToProcess = new Queue<MazeState>();
             HashSet<(Point, int)> visited = new HashSet<(Point, int)>();
@@ -53,7 +57,7 @@ namespace AdventOfCode.Solutions.Year2019
                 {
                     if (PointToGate[current.Location].Equals("ZZ") && current.Level == 0)
                     {
-                        return current.Distance;
+                        return current;
                     }
                     else
                     {
@@ -66,7 +70,7 @@ namespace AdventOfCode.Solutions.Year2019
                             (Point, int) otherSide = (otherGatePoint, current.Level);
                             if (recursive)
                             {
-                                otherSide.Item2 += (InsideGates[otherGatePoint] ? 1 : -1);
+                                otherSide.Item2 += (InsideGates[current.Location] ? 1 : -1);
                             }
 
                             if (visited.Contains(otherSide) == false)
@@ -74,6 +78,8 @@ namespace AdventOfCode.Solutions.Year2019
                                 if (GateOpen(current, otherGatePoint, recursive))
                                 {
                                     var nextState = new MazeState() { Location = otherGatePoint, Distance = current.Distance + 1, Level = otherSide.Item2 };
+                                    nextState.Gates.AddRange(current.Gates);
+                                    nextState.Gates.Add((PointToGate[current.Location], otherSide.Item2));
                                     ToProcess.Enqueue(nextState);
                                     continue;
                                 }
@@ -87,10 +93,10 @@ namespace AdventOfCode.Solutions.Year2019
 
                 foreach (var p in nextPoints)
                 {
-                    ToProcess.Enqueue(new MazeState() { Location = p, Distance = current.Distance + 1, Level = current.Level });
+                    ToProcess.Enqueue(new MazeState() { Location = p, Distance = current.Distance + 1, Level = current.Level , Gates = current.Gates});
                 }
             }
-            return -1;
+            return null;
 
         }
 
@@ -239,21 +245,28 @@ namespace AdventOfCode.Solutions.Year2019
 
             }
         }
-
         protected override string SolvePartTwo()
         {
-            int ans = WalkMaze(new MazeState() { Location = GateToPoints["AA"][0], Distance = 0, Level = 0 },true);
-            return ans.ToString();
+            MazeState ans = WalkMaze(new MazeState() { Location = GateToPoints["AA"][0], Distance = 0, Level = 0 },true);
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append(ans.Distance.ToString());
+            sb.AppendLine();
+            sb.Append("(AA,0) -> ");
+            ans.Gates.ForEach(g => sb.Append("(").Append(g.Item1).Append(",").Append(g.Item2.ToString()).Append(") -> "));
+            sb.AppendLine("(ZZ,0)");
+
+            return sb.ToString();
         }
     }
 
 
-    struct MazeState
+    class MazeState
     {
         public Point Location;
         public int Distance;
         public int Level;
-
+        public List<(string,int)> Gates = new List<(string,int)>();
         public override bool Equals(object obj)
         {
             if (obj.GetType().Equals(this.GetType()) == false)
