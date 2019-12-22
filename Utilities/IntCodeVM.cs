@@ -15,7 +15,6 @@ namespace AdventOfCode.Utilities
         public IntCodeMode[] Modes;
         public int Length;
         Dictionary<int, string> ParameterNames = null;
-
         public void SetParameterName(int param, string name)
         {
             if (ParameterNames == null)
@@ -51,7 +50,7 @@ namespace AdventOfCode.Utilities
 
         public override string ToString()
         {
-            SetParameterName(3, "dest");
+            //SetParameterName(3, "dest");
             StringBuilder sb = new StringBuilder();
             switch (OpCode)
             {
@@ -90,7 +89,7 @@ namespace AdventOfCode.Utilities
 
             for (var x = 0; x < Parameters.Length; x++)
             {
-                if (ParameterNames.ContainsKey(x + 1))
+                if (ParameterNames != null && ParameterNames.ContainsKey(x + 1))
                 {
                     sb.Append(ParameterNames[x + 1]);
                 }
@@ -179,8 +178,11 @@ namespace AdventOfCode.Utilities
         public bool EnableInstrumentation = false;
         long IP;
         Dictionary<long, List<IntCodeInstruction>> InstructionLog = new Dictionary<long, List<IntCodeInstruction>>();
+        DefaultDictionary<long, int> IPCount = new DefaultDictionary<long, int>();
         List<long> InputLog = new List<long>();
         List<long> OutputLog = new List<long>();
+        public long ExecutionCount;
+
         public IntCodeVM(string prog)
         {
             program = prog.Split(',').Select(s => long.Parse(s)).ToArray();
@@ -200,6 +202,7 @@ namespace AdventOfCode.Utilities
 
             program.CopyTo(memory, 0);
             IP = 0;
+            ExecutionCount = 0;
             Inputs.Clear();
             Outputs.Clear();
             RelativeBase = 0;
@@ -232,6 +235,7 @@ namespace AdventOfCode.Utilities
 
             if (EnableInstrumentation)
             {
+                IPCount[IP] = IPCount[IP] + 1;
                 if (InstructionLog.ContainsKey(IP))
                 {
                     if (InstructionLog[IP].Contains(opCode) == false)
@@ -311,6 +315,7 @@ namespace AdventOfCode.Utilities
         {
             while (true)
             {
+                ExecutionCount++;
                 IntCodeInstruction instr = ParseOpCode();
                 //Console.WriteLine(IP.ToString("D8") + ":  " + instr);
                 bool IPModified = false;
