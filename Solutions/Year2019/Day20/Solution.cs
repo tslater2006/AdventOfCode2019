@@ -22,7 +22,7 @@ namespace AdventOfCode.Solutions.Year2019
 
         DefaultDictionary<Point, bool> InsideGates = new DefaultDictionary<Point, bool>();
 
-        public Day20() : base(20, 2019, "")
+        public Day20() : base(20, 2019, "Donut Maze")
         {
             mapHeight = Input.Length;
             mapWidth = Input[0].Length;

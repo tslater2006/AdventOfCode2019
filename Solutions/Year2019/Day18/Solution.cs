@@ -22,7 +22,7 @@ namespace AdventOfCode.Solutions.Year2019 {
         /* 2d map that key off 2 keys, and return their keymask (required doors) */
         DefaultDictionary<char, DefaultDictionary<char, int>> keyDoors = new DefaultDictionary<char, DefaultDictionary<char, int>>();
 
-        public Day18() : base(18, 2019, "") {
+        public Day18() : base(18, 2019, "Many-Worlds Interpretation") {
         }
 
         void ParseMap()

@@ -5,7 +5,7 @@ namespace AdventOfCode.Solutions.Year2019 {
 
     class Day19 : ASolution {
         IntCodeVM vm = null;
-        public Day19() : base(19, 2019, "") {
+        public Day19() : base(19, 2019, "Tractor Beam") {
             
         }
 
