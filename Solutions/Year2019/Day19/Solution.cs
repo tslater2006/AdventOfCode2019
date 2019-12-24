@@ -63,7 +63,7 @@ namespace AdventOfCode.Solutions.Year2019 {
                     /* winning! */
                     var xCoord = curX - 99;
 
-                    int i = 3;
+                    return ((xCoord * 10000) + curY).ToString();
                 } else
                 {
                     curX++;
